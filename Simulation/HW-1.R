@@ -30,7 +30,6 @@ qqPlot(return, main='Normal Q-Q Plot 1991:2006')
 
 
 #### normal distribution estimate ####
-N=10000000
 set.seed(42)
 simulation.size=10000000
 
@@ -52,8 +51,6 @@ sd(Simulation.normal)
 quantile(Simulation.normal, c(.05, .95))
 sd(Simulation.P)/mean(Simulation.normal)
 median(Simulation.normal)
-
-
 
 #### kernel density ####
 density.return <- density(return, bw="SJ-ste")
