@@ -5,7 +5,7 @@ library(ks)
 library(car) # plot qq plot with confidence interval
 
 # read in data
-df<-read_excel('Analysis_Data2.xlsx',sheet=2)
+df<-read_excel('Simulation/Analysis_Data2.xlsx',sheet=2)
 
 #### get return 1991 to 2006 ####
 return <- df %>% filter(Date %in% 1991:2006) %>%
@@ -25,7 +25,7 @@ cost2016=mean(as.numeric(df %>% filter(Date==2006) %>%
 par(mfrow=c(1,2))
 hist(return, breaks=25, main='Return Distribution', xlab='Return')
 qqPlot(return, main='Normal Q-Q Plot 1991:2006')
-
+par(mfrow=c(1,1))
 
 
 
@@ -49,13 +49,13 @@ mtext("Cost 2006", at=cost2016, col="red")
 mean(Simulation.normal)
 sd(Simulation.normal)
 quantile(Simulation.normal, c(.05, .95))
-sd(Simulation.P)/mean(Simulation.normal)
+sd(Simulation.normal)/mean(Simulation.normal)
 median(Simulation.normal)
 
 #### kernel density ####
 density.return <- density(return, bw="SJ-ste")
 
-est.return <- rkde(fhat=kde(return, h=density.return$bw), n=N)
+est.return <- rkde(fhat=kde(return, h=density.return$bw), n=simulation.size)
 hist(est.return, breaks=100, main='Kernel Density Estimated Return Distribution', xlab='Final Value')
 #abline(v = 0, col="red", lwd=2)
 #mtext("Initial Inv.", at=0, col="red")
