@@ -31,7 +31,7 @@ par(mfrow=c(1,1))
 
 #### normal distribution estimate ####
 set.seed(42)
-simulation.size=10000000
+simulation.size=100000
 
 P.n <- cbind(matrix(data=rnorm(n=(6 * simulation.size), mean=return.mean, sd=return.sd)+1,
                     nrow=simulation.size, byrow = TRUE),
