@@ -2,3 +2,6 @@
 .DS_Store
 .Rproj.user
 */~*
+*/IC.csv
+*/NPV.csv
+*/*checkpoints*
