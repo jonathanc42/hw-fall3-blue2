@@ -1,5 +1,3 @@
-library(msm)
-library(readxl)
 library(dplyr)
 library(truncnorm)
 library(purrr)
@@ -10,18 +8,6 @@ set.seed(42)
 
 # set up simulation.size as 10 Million
 simulation.size=10000000
-
-p.h <- rtnorm(n = simulation.size, mean=0.99, sd=0.05, lower=0, upper=1)
-p.r <- rtnorm(n = simulation.size, mean=0.8, sd=0.1, lower=0, upper=1)
-
-hist(p.h, breaks = 100)
-hist(p.r, breaks = 100)
-
-length(p.h)
-length(p.r)
-
-p <- p.h * p.r
-
 
 
 #simulate the probabability that hydrocarbons are present
@@ -51,10 +37,8 @@ hist(nwells)
 summary(nwells)
 
 #Simulates the number of wet wells and dry wells
-producing <- rbinom(simulation.size, nwells, p)
+producing <- rbinom(simulation.size, nwells, probwet)
 hist(producing)
-
-producing2 <- rbinom(simulation.size, nwells, 0.7616);hist(producing2, main='a fixed test')
 
 mean(producing)
 dry <- nwells - producing
@@ -76,32 +60,51 @@ d <- hist(dry, main="Number of Dry Wells", breaks=10,
 wetratio <- hist(propwet, main = "Proportion of Wet Wells",
                  col = "lightgray", xlab="Proportion")
 
-n=10
-m=5
-c(rep(1,n),rep(0,n-m))
 
 
-a=c(1,2,3,4,5)
-a
-a.apply(c(rep(1,a),rep(0,n-a)))
+#### get individual number of wet well per individual rate ####
+n = 30
 
-matrix(data=rnorm(n=(6 * 100), mean=1, sd=2)+1,
-       nrow=100, byrow = TRUE) 
+well_mat <- matrix(rep(NA, n * simulation.size),nrow=simulation.size)
 
-
-nwells
-
-matrix(data=rbinom((n* simulation.size),1,p),
-       nrow=simulation.size, byrow=TRUE)
-
-a= matrix(c(1,2,3,4),nrow=2)
-b= matrix(c(1,1,0,0),nrow=2)
-
-test = matrix(rep(0,n*simulation.size),
-              nrow=simulation.size, byrow=TRUE)
-
-i = 1
-a[i,] <- c(666,666)
-for(i = 1:5){
-    print(i)
+for(i in 1:simulation.size){
+    well_mat[i,]=c(rep(1,nwells[i]),rep(0,n-nwells[i]))
 }
+
+Well_ind <- matrix(rbinom(n = n * simulation.size,
+                          size = 1, 
+                          prob = rtruncnorm(n * simulation.size, a=0, b=1, mean=.99, sd=.05) *
+                              rtruncnorm(n * simulation.size, a=0, b=1, mean=.8, sd=.1)),
+                   nrow = simulation.size)
+
+well_final <- well_mat * Well_ind
+
+well_wet <- apply(well_final,1,sum)
+
+hist(well_wet, main="Number of Wet wells",
+     col = "lightgray", xlab = "Number")
+
+hist(nwells - well_wet, main="Number of dry wells",
+     col = "lightgray", xlab = "Number")
+
+hist(well_wet /nwells, main="Proportion of Wet Wells",
+     col = "lightgray", xlab = "Proportion")
+abline(v = var, col="red", lwd=2)
+mtext("5% VaR: 0.59", at=var, col="red")
+
+proportion = well_wet /nwells
+
+quantile(proportion, c(.05))
+var = quantile(proportion, c(.05))
+# CVaR = ES ...
+mean(proportion[proportion<quantile(proportion, c(.05))])
+
+# and rest
+median(proportion)
+mean(proportion)
+sd(proportion)
+quantile(proportion, c(.05, .95))
+sd(proportion)/mean(proportion)
+
+median(well_wet)
+median(nwells - well_wet)
